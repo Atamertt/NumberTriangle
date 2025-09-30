@@ -1,4 +1,8 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
@@ -64,6 +68,24 @@ public class NumberTriangle {
      */
     public void maxSumPath() {
         // for fun [not for credit]:
+
+        if (this.isLeaf())
+        {
+            return;
+        }
+
+        if (this.left != null) {
+            this.left.maxSumPath();
+        }
+        if (this.right != null) {
+            this.right.maxSumPath();
+        }
+
+        this.root = this.root + Math.max(this.left.root, this.right.root);
+
+        this.left = null;
+        this.right = null;
+
     }
 
 
@@ -138,26 +160,47 @@ public class NumberTriangle {
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-
-        // TODO define any variables that you want to use to store things
-
         // will need to return the top of the NumberTriangle,
         // so might want a variable for that.
-        NumberTriangle top = null;
+
 
         String line = br.readLine();
+
+
+        ArrayList<ArrayList<Integer>> rows = new ArrayList<>();
+        String[] val_str;
+
         while (line != null) {
+            ArrayList<Integer> values = new ArrayList<>();
+            val_str = line.split(" ");
+            for(String s : val_str)
+            {
+                values.add(Integer.parseInt(s));
+            }
 
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
-
-            // TODO process the line
-
-            //read the next line
+            rows.add(values);
             line = br.readLine();
         }
         br.close();
-        return top;
+
+        ArrayList<ArrayList<NumberTriangle>> node_rows = new ArrayList<>();
+        for (ArrayList<Integer> row : rows) {
+            ArrayList<NumberTriangle> node_row = new ArrayList<>();
+            for (int i : row) {
+                node_row.add(new NumberTriangle(i));
+            }
+            node_rows.add(node_row);
+        }
+
+        for(int i = 0; i < node_rows.size() - 1; i++){
+            for(int j = 0; j < node_rows.get(i).size(); j++){
+                NumberTriangle node = node_rows.get(i).get(j);
+                node.setLeft(node_rows.get(i+1).get(j));
+                node.setRight(node_rows.get(i+1).get(j+1));
+            }
+        }
+
+        return node_rows.get(0).get(0);
     }
 
     public static void main(String[] args) throws IOException {
